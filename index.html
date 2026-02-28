@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Novara — From Prompt to Proof</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lapis: #1B2A4A;
+    --lapis-deep: #111d35;
+    --gold: #C9962A;
+    --gold-bright: #E8B84B;
+    --ivory: #F5F0E8;
+    --sand: #EDE8DF;
+    --teal: #2A7F8F;
+    --teal-light: #3a9aac;
+    --slate: #2E3A4E;
+    --sand-mist: #EDE8DF;
+    --body-text: #3a3228;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--ivory);
+    color: var(--slate);
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .display { font-family: 'Cormorant Garamond', serif; font-weight: 300; }
+  .serif { font-family: 'Cormorant Garamond', serif; }
+  .mono { font-family: 'DM Mono', monospace; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 60px;
+    background: rgba(27, 42, 74, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(201, 150, 42, 0.15);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    position: relative;
+  }
+
+  .nav-wordmark {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: 0.18em;
+    color: var(--ivory);
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(245, 240, 232, 0.65);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--gold-bright); }
+
+  .nav-cta {
+    background: var(--gold);
+    color: var(--lapis-deep) !important;
+    padding: 10px 24px;
+    border-radius: 2px;
+    font-weight: 600 !important;
+    color: var(--lapis) !important;
+    transition: background 0.3s !important;
+  }
+
+  .nav-cta:hover { background: var(--gold-bright) !important; color: var(--lapis) !important; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    background: var(--lapis-deep);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 140px 60px 100px;
+  }
+
+  /* Radial nova glow */
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 70vw;
+    height: 70vw;
+    background: radial-gradient(ellipse, rgba(201,150,42,0.18) 0%, rgba(42,127,143,0.12) 40%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -10%;
+    left: -15%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(ellipse, rgba(42,127,143,0.1) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  /* Geometric frieze top border */
+  .hero-frieze {
+    position: absolute;
+    top: 80px;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(201,150,42,0.4), rgba(42,127,143,0.4), rgba(201,150,42,0.4), transparent);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 960px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero-eyebrow::before,
+  .hero-eyebrow::after {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.5;
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(64px, 8vw, 110px);
+    line-height: 1.0;
+    color: var(--ivory);
+    margin-bottom: 12px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold), var(--teal-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(28px, 3.5vw, 46px);
+    line-height: 1.2;
+    color: rgba(245,240,232,0.5);
+    margin-bottom: 36px;
+    font-style: italic;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-description {
+    font-size: 17px;
+    font-weight: 300;
+    line-height: 1.75;
+    color: rgba(245,240,232,0.6);
+    max-width: 560px;
+    margin: 0 auto 48px;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 80px;
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--lapis-deep);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 16px 40px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.1);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .btn-primary:hover { background: var(--gold-bright); transform: translateY(-1px); box-shadow: 0 8px 30px rgba(201,150,42,0.35); }
+
+  .btn-secondary {
+    background: transparent;
+    color: rgba(245,240,232,0.7);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    padding: 16px 32px;
+    border: 1px solid rgba(245,240,232,0.2);
+    border-radius: 2px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .btn-secondary:hover { border-color: rgba(201,150,42,0.5); color: var(--gold-bright); }
+
+  /* ── HERO PDF MOCKUP ── */
+  .hero-visual {
+    position: relative;
+    z-index: 2;
+    animation: fadeUp 0.8s 0.5s ease both;
+    width: 100%;
+    max-width: 780px;
+  }
+
+  .pdf-mockup {
+    background: var(--ivory);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow:
+      0 2px 4px rgba(0,0,0,0.1),
+      0 20px 60px rgba(0,0,0,0.5),
+      0 0 0 1px rgba(201,150,42,0.15),
+      0 0 80px rgba(201,150,42,0.08);
+    transform: perspective(1200px) rotateX(4deg);
+  }
+
+  .pdf-cover {
+    background: linear-gradient(135deg, var(--lapis-deep) 0%, #1e3a5f 45%, var(--teal) 100%);
+    padding: 48px 52px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pdf-cover::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    right: -20%;
+    width: 60%;
+    height: 160%;
+    background: radial-gradient(ellipse, rgba(201,150,42,0.2) 0%, transparent 65%);
+  }
+
+  .pdf-cover-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pdf-cover-tag::before {
+    content: '';
+    width: 20px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .pdf-cover-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 32px;
+    line-height: 1.2;
+    color: var(--ivory);
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .pdf-cover-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(245,240,232,0.45);
+    letter-spacing: 0.08em;
+    position: relative;
+    z-index: 1;
+  }
+
+  .pdf-trust-badge {
+    position: absolute;
+    top: 40px;
+    right: 52px;
+    background: rgba(201,150,42,0.15);
+    border: 1px solid rgba(201,150,42,0.4);
+    border-radius: 50%;
+    width: 72px;
+    height: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .trust-score {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--gold-bright);
+    line-height: 1;
+  }
+
+  .trust-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 7px;
+    color: rgba(201,150,42,0.7);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .pdf-body {
+    padding: 28px 52px 32px;
+    background: var(--ivory);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+  }
+
+  .pdf-section {
+    padding-right: 28px;
+  }
+
+  .pdf-section:not(:last-child) {
+    border-right: 1px solid var(--sand);
+    margin-right: 28px;
+  }
+
+  .pdf-section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+
+  .pdf-section-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--lapis);
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 6px;
+  }
+
+  .pdf-line {
+    height: 6px;
+    background: var(--sand);
+    border-radius: 2px;
+    margin-bottom: 6px;
+  }
+
+  .pdf-line.w-full { width: 100%; }
+  .pdf-line.w-90 { width: 90%; }
+  .pdf-line.w-75 { width: 75%; }
+  .pdf-line.w-60 { width: 60%; }
+  .pdf-line.w-85 { width: 85%; }
+  .pdf-line.gold { background: rgba(201,150,42,0.25); }
+
+  .pdf-cite {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    color: var(--teal);
+    margin-top: 6px;
+  }
+
+  .cite-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+
+  .pdf-footer-bar {
+    background: var(--lapis);
+    padding: 10px 52px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .pdf-footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: rgba(245,240,232,0.4);
+    text-transform: uppercase;
+  }
+
+  .pdf-footer-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    color: rgba(245,240,232,0.3);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── TRUST BAR ── */
+  .trust-bar {
+    background: var(--sand);
+    border-top: 1px solid rgba(201,150,42,0.2);
+    border-bottom: 1px solid rgba(201,150,42,0.2);
+    padding: 24px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    flex-wrap: wrap;
+  }
+
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--slate);
+    opacity: 0.65;
+    letter-spacing: 0.04em;
+  }
+
+  .trust-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--gold);
+  }
+
+  /* ── SECTION SHARED ── */
+  section { position: relative; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::before {
+    content: '';
+    width: 30px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.6;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .section-body {
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.8;
+    color: rgba(46,58,78,0.75);
+    max-width: 520px;
+  }
+
+  /* Frieze divider */
+  .frieze-divider {
+    height: 24px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0.35;
+  }
+
+  .frieze-divider svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how-section {
+    background: var(--ivory);
+    padding: 120px 60px;
+  }
+
+  .how-header {
+    text-align: center;
+    margin-bottom: 80px;
+  }
+
+  .how-header .section-label {
+    justify-content: center;
+  }
+
+  .how-header .section-label::before { display: none; }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .steps-grid::before {
+    content: '';
+    position: absolute;
+    top: 52px;
+    left: calc(16.66% + 20px);
+    right: calc(16.66% + 20px);
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold), var(--teal), var(--gold));
+    opacity: 0.3;
+    z-index: 0;
+  }
+
+  .step-card {
+    padding: 40px 36px;
+    background: var(--ivory);
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s;
+  }
+
+  .step-card:hover { transform: translateY(-4px); }
+
+  .step-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 72px;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--sand);
+    position: absolute;
+    top: 24px;
+    right: 28px;
+  }
+
+  .step-icon-wrap {
+    width: 56px;
+    height: 56px;
+    background: var(--lapis);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .step-icon-wrap::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 2px;
+    background: linear-gradient(135deg, var(--gold), transparent);
+    opacity: 0.3;
+    z-index: -1;
+  }
+
+  .step-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--lapis);
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .step-desc {
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: rgba(46,58,78,0.65);
+  }
+
+  .step-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-top: 16px;
+  }
+
+  /* ── FEATURES ── */
+  .features-section {
+    background: var(--lapis-deep);
+    padding: 120px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .features-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 20%, rgba(201,150,42,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 10% 80%, rgba(42,127,143,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .features-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 100px;
+    align-items: start;
+  }
+
+  .features-left .section-title { color: var(--ivory); }
+  .features-left .section-body { color: rgba(245,240,232,0.55); }
+
+  .features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .feature-item {
+    padding: 24px 28px;
+    background: rgba(245,240,232,0.03);
+    border: 1px solid rgba(245,240,232,0.06);
+    border-left: 2px solid transparent;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .feature-item:hover {
+    background: rgba(245,240,232,0.06);
+    border-left-color: var(--gold);
+  }
+
+  .feature-item-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+
+  .feature-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+
+  .feature-item-title {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ivory);
+    letter-spacing: 0.02em;
+  }
+
+  .feature-item-desc {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.65;
+    color: rgba(245,240,232,0.45);
+    padding-left: 22px;
+  }
+
+  /* ── INTEGRITY / T-SCORE ── */
+  .integrity-section {
+    background: var(--sand);
+    padding: 120px 60px;
+    position: relative;
+  }
+
+  .integrity-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .score-display {
+    background: var(--lapis);
+    border-radius: 4px;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(27,42,74,0.2);
+  }
+
+  .score-display::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 60%;
+    height: 100%;
+    background: radial-gradient(ellipse at 80% 20%, rgba(201,150,42,0.12) 0%, transparent 65%);
+  }
+
+  .score-header {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 24px;
+  }
+
+  .score-main {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 32px;
+  }
+
+  .score-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 88px;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--ivory);
+  }
+
+  .score-denom {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 300;
+    color: rgba(245,240,232,0.3);
+  }
+
+  .score-components {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .score-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .score-row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .score-row-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.45);
+  }
+
+  .score-row-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--gold-bright);
+  }
+
+  .score-bar-track {
+    height: 3px;
+    background: rgba(245,240,232,0.08);
+    border-radius: 2px;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--teal), var(--gold));
+  }
+
+  .claim-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 32px;
+  }
+
+  .claim-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(46,58,78,0.75);
+  }
+
+  .claim-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .claim-label {
+    font-weight: 500;
+    color: var(--slate);
+    font-size: 13px;
+  }
+
+  /* ── TEMPLATES ── */
+  .templates-section {
+    background: var(--ivory);
+    padding: 120px 60px;
+  }
+
+  .templates-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+
+  .templates-header .section-label {
+    justify-content: center;
+  }
+
+  .templates-header .section-label::before { display: none; }
+
+  .templates-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    max-width: 1100px;
+    margin: 0 auto 64px;
+  }
+
+  .template-card {
+    background: var(--sand);
+    padding: 28px 24px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .template-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+
+  .template-card:hover { background: var(--ivory); border-color: rgba(201,150,42,0.3); transform: translateY(-2px); }
+  .template-card:hover::before { transform: scaleX(1); }
+
+  .template-icon {
+    font-size: 24px;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .template-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--lapis);
+    margin-bottom: 6px;
+  }
+
+  .template-desc {
+    font-size: 12px;
+    font-weight: 300;
+    color: rgba(46,58,78,0.55);
+    line-height: 1.5;
+  }
+
+  /* ── PRICING ── */
+  .pricing-section {
+    background: var(--lapis-deep);
+    padding: 120px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pricing-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,150,42,0.07) 0%, transparent 60%);
+  }
+
+  .pricing-header {
+    text-align: center;
+    margin-bottom: 64px;
+    position: relative;
+  }
+
+  .pricing-header .section-label {
+    justify-content: center;
+  }
+
+  .pricing-header .section-label::before { display: none; }
+  .pricing-header .section-title { color: var(--ivory); }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .pricing-card {
+    background: rgba(245,240,232,0.04);
+    border: 1px solid rgba(245,240,232,0.08);
+    padding: 40px 36px;
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .pricing-card.featured {
+    background: rgba(201,150,42,0.08);
+    border-color: rgba(201,150,42,0.35);
+    transform: scale(1.02);
+    z-index: 2;
+  }
+
+  .pricing-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: var(--lapis-deep);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 4px 16px;
+    font-weight: 500;
+  }
+
+  .pricing-tier {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+
+  .pricing-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 56px;
+    font-weight: 300;
+    color: var(--ivory);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .pricing-price sup {
+    font-size: 24px;
+    vertical-align: super;
+    color: rgba(245,240,232,0.5);
+  }
+
+  .pricing-period {
+    font-size: 12px;
+    font-weight: 300;
+    color: rgba(245,240,232,0.35);
+    margin-bottom: 32px;
+    letter-spacing: 0.04em;
+  }
+
+  .pricing-divider {
+    height: 1px;
+    background: rgba(245,240,232,0.08);
+    margin-bottom: 28px;
+  }
+
+  .pricing-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+
+  .pricing-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 300;
+    color: rgba(245,240,232,0.6);
+    line-height: 1.4;
+  }
+
+  .pricing-features li::before {
+    content: '—';
+    color: var(--gold);
+    opacity: 0.6;
+    flex-shrink: 0;
+    font-size: 10px;
+    margin-top: 2px;
+  }
+
+  .btn-pricing {
+    display: block;
+    text-align: center;
+    padding: 13px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  .btn-pricing-outline {
+    border: 1px solid rgba(245,240,232,0.2);
+    color: rgba(245,240,232,0.6);
+  }
+
+  .btn-pricing-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  .btn-pricing-gold {
+    background: var(--gold);
+    color: var(--lapis-deep);
+  }
+
+  .btn-pricing-gold:hover { background: var(--gold-bright); }
+
+  /* ── CTA SECTION ── */
+  .cta-section {
+    background: var(--sand);
+    padding: 120px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(ellipse, rgba(201,150,42,0.06) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .cta-inner {
+    position: relative;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .cta-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.3;
+    color: var(--lapis);
+    margin-bottom: 16px;
+  }
+
+  .cta-attribution {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(46,58,78,0.4);
+    text-transform: uppercase;
+    margin-bottom: 48px;
+  }
+
+  .cta-input-row {
+    display: flex;
+    gap: 0;
+    max-width: 480px;
+    margin: 0 auto;
+    box-shadow: 0 8px 40px rgba(27,42,74,0.12);
+  }
+
+  .cta-input {
+    flex: 1;
+    padding: 16px 20px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    background: var(--ivory);
+    border: 1px solid rgba(27,42,74,0.15);
+    border-right: none;
+    border-radius: 2px 0 0 2px;
+    outline: none;
+    color: var(--slate);
+  }
+
+  .cta-input::placeholder { color: rgba(46,58,78,0.35); }
+  .cta-input:focus { border-color: var(--gold); }
+
+  .cta-btn {
+    background: var(--gold);
+    color: var(--lapis-deep);
+    border: none;
+    padding: 16px 28px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 0 2px 2px 0;
+    transition: background 0.3s;
+  }
+
+  .cta-btn:hover { background: var(--gold-bright); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--lapis-deep);
+    padding: 60px 60px 40px;
+    border-top: 1px solid rgba(201,150,42,0.1);
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 48px;
+  }
+
+  .footer-brand p {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: rgba(245,240,232,0.35);
+    margin-top: 16px;
+    max-width: 280px;
+  }
+
+  .footer-col-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    opacity: 0.8;
+  }
+
+  .footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-links a {
+    font-size: 13px;
+    font-weight: 300;
+    color: rgba(245,240,232,0.4);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .footer-links a:hover { color: rgba(245,240,232,0.8); }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(245,240,232,0.06);
+    padding-top: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-legal {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: rgba(245,240,232,0.2);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger children */
+  .stagger > * {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .stagger.visible > *:nth-child(1) { opacity:1; transform:none; transition-delay: 0s; }
+  .stagger.visible > *:nth-child(2) { opacity:1; transform:none; transition-delay: 0.1s; }
+  .stagger.visible > *:nth-child(3) { opacity:1; transform:none; transition-delay: 0.2s; }
+  .stagger.visible > *:nth-child(4) { opacity:1; transform:none; transition-delay: 0.3s; }
+  .stagger.visible > *:nth-child(5) { opacity:1; transform:none; transition-delay: 0.4s; }
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <!-- SVG Eye of Ra mark -->
+    <svg class="logo-mark" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="18" cy="18" rx="16" ry="9" stroke="#C9962A" stroke-width="1.5"/>
+      <circle cx="18" cy="18" r="4.5" stroke="#C9962A" stroke-width="1.5"/>
+      <circle cx="18" cy="18" r="1.5" fill="#C9962A"/>
+      <!-- lashes -->
+      <line x1="18" y1="5" x2="18" y2="2" stroke="#C9962A" stroke-width="1" opacity="0.5"/>
+      <line x1="23" y1="6.5" x2="24.5" y2="4" stroke="#C9962A" stroke-width="1" opacity="0.4"/>
+      <line x1="13" y1="6.5" x2="11.5" y2="4" stroke="#C9962A" stroke-width="1" opacity="0.4"/>
+      <line x1="26.5" y1="11" x2="29" y2="9.5" stroke="#C9962A" stroke-width="1" opacity="0.3"/>
+      <line x1="9.5" y1="11" x2="7" y2="9.5" stroke="#C9962A" stroke-width="1" opacity="0.3"/>
+    </svg>
+    <span class="nav-wordmark">Novara</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#">How it Works</a></li>
+    <li><a href="#">Templates</a></li>
+    <li><a href="#">Pricing</a></li>
+    <li><a href="#">Enterprise</a></li>
+    <li><a href="#" class="nav-cta">Get Started</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-frieze"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">AI Research & Analysis Agent</div>
+    <h1 class="hero-title">From prompt<br>to <em>proof.</em></h1>
+    <p class="hero-subtitle">Research, illuminated.</p>
+    <p class="hero-description">Enter any question. Novara searches the web, synthesizes trusted sources, and returns a beautifully formatted, fully cited PDF document — in minutes.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">
+        Generate Your First Report
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#" class="btn-secondary">See Sample Report</a>
+    </div>
+  </div>
+
+  <!-- PDF Mockup -->
+  <div class="hero-visual">
+    <div class="pdf-mockup">
+      <div class="pdf-cover">
+        <div class="pdf-cover-tag">Market Analysis Report</div>
+        <div class="pdf-cover-title">Global Electric Vehicle Market:<br>Trends, Forecasts & Investment Signals</div>
+        <div class="pdf-cover-meta">Generated by Novara · 23 sources · Retrieved Feb 28, 2026 · 18 pages</div>
+        <div class="pdf-trust-badge">
+          <div class="trust-score">94</div>
+          <div class="trust-label">T-Score</div>
+        </div>
+      </div>
+      <div class="pdf-body">
+        <div class="pdf-section">
+          <div class="pdf-section-label">Executive Summary</div>
+          <div class="pdf-section-heading">Market Overview</div>
+          <div class="pdf-line w-full"></div>
+          <div class="pdf-line w-90"></div>
+          <div class="pdf-line w-full"></div>
+          <div class="pdf-line w-75"></div>
+          <div class="pdf-cite"><div class="cite-dot"></div> Sources [1] [4] [7]</div>
+        </div>
+        <div class="pdf-section">
+          <div class="pdf-section-label">Key Findings</div>
+          <div class="pdf-section-heading">Growth Signals</div>
+          <div class="pdf-line w-85 gold"></div>
+          <div class="pdf-line w-full"></div>
+          <div class="pdf-line w-90"></div>
+          <div class="pdf-line w-60"></div>
+          <div class="pdf-cite"><div class="cite-dot"></div> Sources [2] [9] [11]</div>
+        </div>
+        <div class="pdf-section">
+          <div class="pdf-section-label">Risk Assessment</div>
+          <div class="pdf-section-heading">Key Uncertainties</div>
+          <div class="pdf-line w-full"></div>
+          <div class="pdf-line w-85"></div>
+          <div class="pdf-line w-full"></div>
+          <div class="pdf-line w-90"></div>
+          <div class="pdf-cite"><div class="cite-dot"></div> Sources [5] [14] [19]</div>
+        </div>
+      </div>
+      <div class="pdf-footer-bar">
+        <span class="pdf-footer-logo">Novara</span>
+        <span class="pdf-footer-meta">Trustworthiness: 94/100 · 23 verified sources · Data as of Feb 28, 2026</span>
+        <span class="pdf-footer-meta">Page 1</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TRUST BAR ── -->
+<div class="trust-bar">
+  <div class="trust-item">
+    <svg class="trust-icon" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7.5" stroke="#C9962A" stroke-width="1.2"/><path d="M5.5 9l2.5 2.5 4.5-5" stroke="#C9962A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Zero fabricated citations
+  </div>
+  <div class="trust-item">
+    <svg class="trust-icon" viewBox="0 0 18 18" fill="none"><path d="M9 2L3 5v5c0 3.3 2.5 6.4 6 7.2C12.5 16.4 15 13.3 15 10V5L9 2z" stroke="#C9962A" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    Claim-level provenance
+  </div>
+  <div class="trust-item">
+    <svg class="trust-icon" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7.5" stroke="#C9962A" stroke-width="1.2"/><path d="M9 4v5l3 3" stroke="#C9962A" stroke-width="1.4" stroke-linecap="round"/></svg>
+    Live web research
+  </div>
+  <div class="trust-item">
+    <svg class="trust-icon" viewBox="0 0 18 18" fill="none"><rect x="3" y="2" width="12" height="14" rx="1.5" stroke="#C9962A" stroke-width="1.2"/><path d="M6 6h6M6 9h6M6 12h4" stroke="#C9962A" stroke-width="1.2" stroke-linecap="round"/></svg>
+    Print-quality PDF output
+  </div>
+  <div class="trust-item">
+    <svg class="trust-icon" viewBox="0 0 18 18" fill="none"><path d="M2 9a7 7 0 1114 0A7 7 0 012 9z" stroke="#C9962A" stroke-width="1.2"/><path d="M9 6v3l2.5 1.5" stroke="#C9962A" stroke-width="1.2" stroke-linecap="round"/></svg>
+    Domain-aware guardrails
+  </div>
+</div>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how-section">
+  <div class="how-header reveal">
+    <div class="section-label">The Process</div>
+    <h2 class="section-title" style="color: var(--lapis);">Three steps.<br>One illuminated document.</h2>
+  </div>
+  <div class="steps-grid stagger">
+    <div class="step-card">
+      <div class="step-number">01</div>
+      <div class="step-icon-wrap">
+        <!-- Lotus search icon -->
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="11" cy="11" r="7" stroke="#C9962A" stroke-width="1.5"/><path d="M16.5 16.5L22 22" stroke="#C9962A" stroke-width="2" stroke-linecap="round"/><path d="M11 5c0 0-3 2-3 6s3 6 3 6" stroke="#E8B84B" stroke-width="1" stroke-linecap="round" opacity="0.5"/></svg>
+      </div>
+      <h3 class="step-title">Enter Your Prompt</h3>
+      <p class="step-desc">Describe what you need — a market analysis, investment brief, consumer guide, or research review. Optionally upload supporting files or URLs.</p>
+      <div class="step-tag">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
+        Topic classification applied
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-number">02</div>
+      <div class="step-icon-wrap">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M5 13h3M13 5v3M21 13h-3M13 21v-3" stroke="#C9962A" stroke-width="1.5" stroke-linecap="round"/><circle cx="13" cy="13" r="5" stroke="#C9962A" stroke-width="1.5"/><circle cx="13" cy="13" r="2" fill="#C9962A" opacity="0.4"/></svg>
+      </div>
+      <h3 class="step-title">Novara Researches</h3>
+      <p class="step-desc">Our agent generates a multi-step search plan, queries the live web, triages sources by credibility tier, and extracts only verifiable claims — with full provenance tracking.</p>
+      <div class="step-tag">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
+        Sources ranked & verified
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-number">03</div>
+      <div class="step-icon-wrap">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="5" y="3" width="16" height="20" rx="2" stroke="#C9962A" stroke-width="1.5"/><path d="M9 8h8M9 12h8M9 16h5" stroke="#C9962A" stroke-width="1.3" stroke-linecap="round"/></svg>
+      </div>
+      <h3 class="step-title">Receive Your PDF</h3>
+      <p class="step-desc">A beautifully formatted, fully cited document arrives — with cover page, table of contents, integrity notes, and a complete sources appendix. Ready to download, share, or print.</p>
+      <div class="step-tag">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
+        T-Score integrity rating included
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Frieze divider -->
+<div class="frieze-divider" style="background: var(--sand);">
+  <svg viewBox="0 0 1200 24" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <pattern id="frieze" x="0" y="0" width="60" height="24" patternUnits="userSpaceOnUse">
+      <rect x="10" y="10" width="4" height="4" fill="#C9962A" opacity="0.4"/>
+      <rect x="20" y="8" width="2" height="8" fill="#C9962A" opacity="0.25"/>
+      <rect x="28" y="10" width="4" height="4" fill="#2A7F8F" opacity="0.35"/>
+      <rect x="38" y="8" width="2" height="8" fill="#C9962A" opacity="0.25"/>
+      <rect x="46" y="10" width="4" height="4" fill="#C9962A" opacity="0.4"/>
+    </pattern>
+    <rect width="1200" height="24" fill="url(#frieze)"/>
+  </svg>
+</div>
+
+<!-- ── FEATURES ── -->
+<section class="features-section">
+  <div class="features-inner">
+    <div class="features-left reveal">
+      <div class="section-label">Why Novara</div>
+      <h2 class="section-title" style="color:var(--ivory);">The research engine<br>that shows<br><em style="font-style:italic; color: var(--gold-bright);">its work.</em></h2>
+      <p class="section-body" style="color:rgba(245,240,232,0.5);">Every AI tool gives you answers. Novara gives you answers you can trust — with the source trail to prove it. Built for professionals who can't afford to be wrong.</p>
+    </div>
+    <div class="features-list stagger">
+      <div class="feature-item">
+        <div class="feature-item-header">
+          <div class="feature-dot"></div>
+          <div class="feature-item-title">Claim-Level Citation Tagging</div>
+        </div>
+        <div class="feature-item-desc">Every factual sentence is marked Cited, Inference, or Assumption — so you always know what's proven vs. reasoned.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-header">
+          <div class="feature-dot" style="background: var(--teal-light)"></div>
+          <div class="feature-item-title">Trustworthiness Score (T-Score)</div>
+        </div>
+        <div class="feature-item-desc">Every report receives an algorithmic integrity rating across Citation Coverage, Source Credibility, Fabrication Risk, and Freshness.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-header">
+          <div class="feature-dot" style="background: var(--gold-bright)"></div>
+          <div class="feature-item-title">Live Web Research via Perplexity</div>
+        </div>
+        <div class="feature-item-desc">Novara doesn't rely on static training data. It searches the live web, triages sources by credibility tier, and checks freshness in real time.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-header">
+          <div class="feature-dot"></div>
+          <div class="feature-item-title">Domain-Aware Guardrails</div>
+        </div>
+        <div class="feature-item-desc">Finance, medical, legal, and safety-sensitive topics trigger specialized policies — neutral language, freshness warnings, and professional consultation prompts.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-header">
+          <div class="feature-dot" style="background: var(--teal-light)"></div>
+          <div class="feature-item-title">Provenance Ledger</div>
+        </div>
+        <div class="feature-item-desc">A machine-readable audit trail of every query, source, and claim relationship ships with every report. Full auditability, always.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── INTEGRITY / T-SCORE ── -->
+<section class="integrity-section">
+  <div class="integrity-inner">
+    <div class="score-display reveal">
+      <div class="score-header">Trustworthiness Score — T-Score</div>
+      <div class="score-main">
+        <div class="score-number">94</div>
+        <div class="score-denom">/100</div>
+      </div>
+      <div class="score-components">
+        <div class="score-row">
+          <div class="score-row-header">
+            <span class="score-row-label">Citation Coverage</span>
+            <span class="score-row-value">96%</span>
+          </div>
+          <div class="score-bar-track"><div class="score-bar-fill" style="width:96%"></div></div>
+        </div>
+        <div class="score-row">
+          <div class="score-row-header">
+            <span class="score-row-label">Source Credibility</span>
+            <span class="score-row-value">91%</span>
+          </div>
+          <div class="score-bar-track"><div class="score-bar-fill" style="width:91%"></div></div>
+        </div>
+        <div class="score-row">
+          <div class="score-row-header">
+            <span class="score-row-label">Fabrication Risk</span>
+            <span class="score-row-value">Low</span>
+          </div>
+          <div class="score-bar-track"><div class="score-bar-fill" style="width:97%"></div></div>
+        </div>
+        <div class="score-row">
+          <div class="score-row-header">
+            <span class="score-row-label">Data Freshness</span>
+            <span class="score-row-value">Feb 28, 2026</span>
+          </div>
+          <div class="score-bar-track"><div class="score-bar-fill" style="width:100%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="section-label">Integrity by Design</div>
+      <h2 class="section-title" style="color: var(--lapis);">Every claim, traceable.<br>Every source, real.</h2>
+      <p class="section-body" style="margin-bottom:36px;">No other research tool shows you the integrity score of its own output. Novara's T-Score is your guarantee that what you're reading is grounded — not generated.</p>
+      <div class="claim-legend">
+        <div class="claim-item">
+          <div class="claim-dot" style="background:#2A7F8F"></div>
+          <div><span class="claim-label">🟢 Cited</span> — Directly supported by a retrieved, verified source</div>
+        </div>
+        <div class="claim-item">
+          <div class="claim-dot" style="background:#C9962A"></div>
+          <div><span class="claim-label">🟡 Inference</span> — Logically derived from cited evidence</div>
+        </div>
+        <div class="claim-item">
+          <div class="claim-dot" style="background:#8a7055"></div>
+          <div><span class="claim-label">🔵 Assumption</span> — Stated premise, not retrieved from source</div>
+        </div>
+        <div class="claim-item">
+          <div class="claim-dot" style="background:#c0392b"></div>
+          <div><span class="claim-label">🔴 Unverified</span> — [CITATION NEEDED] flagged for review</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TEMPLATES ── -->
+<section class="templates-section">
+  <div class="templates-header reveal">
+    <div class="section-label">Document Types</div>
+    <h2 class="section-title" style="color:var(--lapis);">A template for<br>every question.</h2>
+  </div>
+  <div class="templates-grid stagger">
+    <div class="template-card">
+      <span class="template-icon">📈</span>
+      <div class="template-name">Market Analysis</div>
+      <div class="template-desc">TAM/SAM/SOM, competitive landscape, growth signals</div>
+    </div>
+    <div class="template-card">
+      <span class="template-icon">💼</span>
+      <div class="template-name">Investment Brief</div>
+      <div class="template-desc">Portfolio summaries, sector analysis, risk factors</div>
+    </div>
+    <div class="template-card">
+      <span class="template-icon">🔬</span>
+      <div class="template-name">Literature Review</div>
+      <div class="template-desc">Academic synthesis, methodology review, citations</div>
+    </div>
+    <div class="template-card">
+      <span class="template-icon">🛒</span>
+      <div class="template-name">Consumer Guide</div>
+      <div class="template-desc">Buying guides, product comparisons, expert picks</div>
+    </div>
+    <div class="template-card">
+      <span class="template-icon">🐠</span>
+      <div class="template-name">Hobbyist Deep Dive</div>
+      <div class="template-desc">Aquariums, woodworking, photography — expert-level guides</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section class="pricing-section">
+  <div class="pricing-header reveal">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Simple, honest pricing.</h2>
+  </div>
+  <div class="pricing-grid stagger">
+    <div class="pricing-card">
+      <div class="pricing-tier">Free</div>
+      <div class="pricing-price"><sup>$</sup>0</div>
+      <div class="pricing-period">forever · no credit card</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li>2 reports per month</li>
+        <li>Up to 5 pages per report</li>
+        <li>Watermarked PDF export</li>
+        <li>Standard template only</li>
+        <li>Basic T-Score display</li>
+      </ul>
+      <a href="#" class="btn-pricing btn-pricing-outline">Start Free</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="pricing-badge">Most Popular</div>
+      <div class="pricing-tier">Pro</div>
+      <div class="pricing-price"><sup>$</sup>39</div>
+      <div class="pricing-period">per month · billed monthly</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li>20 reports per month</li>
+        <li>Up to 30 pages per report</li>
+        <li>Branded PDF, no watermark</li>
+        <li>Full template library</li>
+        <li>Provenance ledger export</li>
+        <li>Full T-Score breakdown</li>
+        <li>Priority generation queue</li>
+      </ul>
+      <a href="#" class="btn-pricing btn-pricing-gold">Get Pro</a>
+    </div>
+    <div class="pricing-card">
+      <div class="pricing-tier">Professional</div>
+      <div class="pricing-price"><sup>$</sup>79</div>
+      <div class="pricing-period">per month · billed monthly</div>
+      <div class="pricing-divider"></div>
+      <ul class="pricing-features">
+        <li>Unlimited reports</li>
+        <li>Unlimited pages</li>
+        <li>White-label PDF branding</li>
+        <li>API access (beta)</li>
+        <li>Report versioning & re-runs</li>
+        <li>Advanced domain guardrails</li>
+        <li>Email delivery + audit log</li>
+      </ul>
+      <a href="#" class="btn-pricing btn-pricing-outline">Get Professional</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="cta-inner reveal">
+    <p class="cta-quote">"Knowledge has always<br>deserved the light."</p>
+    <div class="cta-attribution">— The Novara Principle · Est. in the tradition of Seshat, 3100 BCE</div>
+    <div class="cta-input-row">
+      <input class="cta-input" type="email" placeholder="Enter your email to get started →">
+      <button class="cta-btn">Begin</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <!-- Frieze top border -->
+  <div style="height:2px; background: linear-gradient(90deg, transparent, rgba(201,150,42,0.3), rgba(42,127,143,0.3), rgba(201,150,42,0.3), transparent); margin-bottom: 48px;"></div>
+
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo" style="margin-bottom: 0;">
+        <svg width="28" height="28" viewBox="0 0 36 36" fill="none"><ellipse cx="18" cy="18" rx="16" ry="9" stroke="#C9962A" stroke-width="1.5"/><circle cx="18" cy="18" r="4.5" stroke="#C9962A" stroke-width="1.5"/><circle cx="18" cy="18" r="1.5" fill="#C9962A"/><line x1="18" y1="5" x2="18" y2="2" stroke="#C9962A" stroke-width="1" opacity="0.5"/></svg>
+        <span class="nav-wordmark" style="font-size:18px;">Novara</span>
+      </a>
+      <p>From prompt to proof. The AI research agent that shows its work — grounded in real sources, formatted for the real world.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Product</div>
+      <ul class="footer-links">
+        <li><a href="#">How it Works</a></li>
+        <li><a href="#">Templates</a></li>
+        <li><a href="#">Pricing</a></li>
+        <li><a href="#">API Access</a></li>
+        <li><a href="#">Enterprise</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <ul class="footer-links">
+        <li><a href="#">About</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Legal</div>
+      <ul class="footer-links">
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">GDPR / CCPA</a></li>
+        <li><a href="#">Integrity Policy</a></li>
+        <li><a href="#">DMCA</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-legal">© 2026 Novara. All rights reserved.</div>
+    <div class="footer-legal">Built on the oldest idea in the world — write it down.</div>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal, .stagger').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
